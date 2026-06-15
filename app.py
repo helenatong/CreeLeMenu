@@ -9,7 +9,7 @@ from datetime import date
 
 import streamlit as st
 
-from src import config, data, pdf
+from src import config, data, pdf, storage
 
 ss = st.session_state
 
@@ -128,8 +128,19 @@ def main() -> None:
             for flag in (config.COL_LUNCH, config.COL_DINNER):
                 edited[flag] = edited[flag].fillna(0).astype(int)
             data.save_menu(edited)
+            try:
+                published = storage.persist_remote()
+            except Exception as e:
+                published = False
+                st.warning(
+                    "Sauvegarde locale faite, mais la publication en ligne a "
+                    f"échoué : {e}"
+                )
             reload_catalogue()
-            st.success("Catalogue sauvegardé ✅")
+            if published:
+                st.success("Catalogue sauvegardé et publié en ligne ✅")
+            else:
+                st.success("Catalogue sauvegardé ✅")
 
 
 if __name__ == "__main__":
