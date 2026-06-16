@@ -9,7 +9,8 @@ FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LON
 0;1;Dessert;Prosecco gourmand;assortiment de 4 minis desserts;;13.9
 0;0;Dessert;Soupe de fruits frais avec glace vanille;;;10.0
 1;1;Dessert;Tarte au citron meringuée // Tarte aux pommes;;;8.0
-1;1;Dessert;Tiramisu;;;8.0
+1;0;Dessert;Tiramisu;;;8.0
+0;1;Dessert;Tiramisu / Tiramisu nocciolata;;;8.0
 1;1;Dessert;Île flottante;crème anglaise maison et sauce caramel;;8.0
 1;0;Entrée;Filet de hareng;pomme à l'huile;;7.9
 1;1;Entrée;Oeufs durs, mayonnaise maison;;;6.0
@@ -29,4 +30,3 @@ FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LON
 0;0;Suggestions du chef;Pizza apéritif;à partager ou pas (tomate, mozzarella fior di latte, oignon, persillade), servi découpé;;13.9
 0;0;Suggestions du chef;Rigatoni aux 3 fromages, Coppa;;;18.0
 0;1;Suggestions du chef;Scaloppina ai funghi;spaguettis (escalope de veau, crème, champignon, mozzarella gratinée);;25.0
-0;1;Dessert;Tiramisu / Tiramisu nocciolata;;;8.0
