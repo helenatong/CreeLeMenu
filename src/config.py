@@ -65,7 +65,7 @@ DINNER_SECTIONS = [
     ("Cocktails du moment", Category.COCKTAIL),
 ]
 
-# Texte de la formule midi (centralisé pour éviter le "18€50" en dur)
-LUNCH_FORMULA_PRICE = "18€50"
+# Texte de la formule midi (centralisé pour éviter le "19€50" en dur)
+LUNCH_FORMULA_PRICE = "19€50"
 LUNCH_FORMULA_SUBTITLE = "(entrée + plat ou plat + dessert)"
 LUNCH_FORMULA_FOOTNOTE = "du lundi au vendredi sauf jours fériés"
