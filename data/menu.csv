@@ -3,12 +3,12 @@ FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LON
 0;0;Cocktail;Porn Star Martini;vodka, liqueur de fruit de la passion, sirop de vanille, jus de citron, nectar de maracuja;;12.0
 0;0;Dessert;Café gourmand;assortiment de 4 minis desserts;;10.0
 1;1;Dessert;Cheesecake, coulis fruit rouge;;;8.0
-1;1;Dessert;Crème brulée à la vanille;;;8.5
+0;1;Dessert;Crème brulée à la vanille;;;8.5
 1;1;Dessert;Mousse au chocolat // Mi-Cuit au chocolat; crème anglaise, chantilly;;8.0
 1;1;Dessert;Panna Cotta;coulis de fruit rouge;;8.0
-1;1;Dessert;Prosecco gourmand;assortiment de 4 minis desserts;;13.9
-1;1;Dessert;Soupe de fruits frais avec glace vanille;;;10.0
-1;1;Dessert;Tarte au citron meringuée // Tarte aux possmes;;;8.0
+0;1;Dessert;Prosecco gourmand;assortiment de 4 minis desserts;;13.9
+0;1;Dessert;Soupe de fruits frais avec glace vanille;;;10.0
+1;1;Dessert;Tarte au citron meringuée // Tarte aux pommes;;;8.0
 1;1;Dessert;Tiramisu // Tiramisu Nocciolata;;;8.0
 1;1;Dessert;Île flottante;crème anglaise maison et sauce caramel;;8.0
 1;0;Entrée;Filet de hareng;pomme à l'huile;;7.9
@@ -18,6 +18,7 @@ FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LON
 0;0;Entrée;Tomate mozzarella di bufala;;;8.9
 1;1;Plats;Pavé de saumon;tagliatelle, sauce gambas;;22.0
 1;1;Plats;Pizza Diavola;tomate, mozarella fior di latte, spianata picante (chorizo);;14.0
+1;0;Plats;Pizza Pizzaîolo;tomate, mozarella fior di latte, jambon supérieur, crème fraiche;;16.0
 1;0;Plats;Rigatoni au saumon;sauce bisque de homard;;18.0
 1;1;Plats;Rigatoni à la sicilienne;aubergine, sauce tomate, mozzarella gratinée;;18.0
 1;1;Suggestions du chef;Antipasto di legumi et burrata;(légumes frais et marinés: courgette, aubergine, poivron, tomate séchée);;22.0
@@ -29,4 +30,3 @@ FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LON
 0;0;Suggestions du chef;Pizza apéritif;à partager ou pas (tomate, mozzarella fior di latte, oignon, persillade), servi découpé;;13.9
 0;1;Suggestions du chef;Rigatoni aux 3 fromages, Coppa;;;18.0
 0;1;Suggestions du chef;Scaloppina ai funghi;spaguettis (escalope de veau, crème, champignon, mozzarella gratinée);;25.0
-1;0;Plats;Pizza Pizzaîolo;tomate, mozarella fior di latte, jambon supérieur, crème fraiche;;16.0
