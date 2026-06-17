@@ -1,18 +1,18 @@
 FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LONG_DESC;NBR_DISH_PRICE
 0;0;Cocktail;Martini Expresso;vodka, liqueur de café, sirop d'orgeat, expresso lavazza;;11.0
-0;1;Cocktail;Porn Star Martini;vodka, liqueur de fruit de la passion, sirop de vanille, jus de citron, nectar de maracuja;;12.0
+1;1;Cocktail;Porn Star Martini;vodka, liqueur de fruit de la passion, sirop de vanille, jus de citron, nectar de maracuja;;12.0
 0;0;Dessert;Café gourmand;assortiment de 4 minis desserts;;10.0
 1;1;Dessert;Cheesecake, coulis fruit rouge;;;8.0
 0;1;Dessert;Crème brulée à la vanille;;;8.5
 1;1;Dessert;Mousse au chocolat // Mi-Cuit au chocolat; crème anglaise, chantilly;;8.0
 1;1;Dessert;Panna Cotta;coulis de fruit rouge;;8.0
-0;1;Dessert;Prosecco gourmand;assortiment de 4 minis desserts;;13.9
+1;1;Dessert;Prosecco gourmand;assortiment de 4 minis desserts;;13.9
 0;0;Dessert;Soupe de fruits frais avec glace vanille;;;10.0
 1;1;Dessert;Tarte au citron meringuée // Tarte aux pommes;;;8.0
 1;0;Dessert;Tiramisu;;;8.0
 0;1;Dessert;Tiramisu / Tiramisu nocciolata;;;8.0
 1;1;Dessert;Île flottante;crème anglaise maison et sauce caramel;;8.0
-1;0;Entrée;Filet de hareng;pomme à l'huile;;7.9
+1;1;Entrée;Filet de hareng;pomme à l'huile;;7.9
 1;1;Entrée;Oeufs durs, mayonnaise maison;;;6.0
 1;1;Entrée;Salade de chèvre;;;7.9
 1;0;Entrée;Salade mozzarella bille;;;7.9
@@ -20,8 +20,9 @@ FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LON
 1;1;Plats;Pavé de saumon;tagliatelle, sauce gambas;;22.0
 1;1;Plats;Pizza Diavola;tomate, mozarella fior di latte, spianata picante (chorizo);;14.9
 1;0;Plats;Pizza Pizzaîolo;tomate, mozarella fior di latte, jambon supérieur, crème fraiche;;16.9
-1;0;Plats;Rigatoni au saumon;sauce bisque de homard;;18.0
+1;1;Plats;Rigatoni au saumon;sauce bisque de homard;;18.0
 1;1;Plats;Rigatoni à la sicilienne;aubergine, sauce tomate, mozzarella gratinée;;18.0
+1;0;Plats;Rumsteak;tagliatelle, sauce gorgonzola;;22.0
 1;1;Suggestions du chef;Antipasto di legumi et burrata;(légumes frais et marinés: courgette, aubergine, poivron, tomate séchée);;22.0
 1;1;Suggestions du chef;"Filet de bœuf ~220g ""Aubrac""";tagliatelle, sauce gorgonzola;;32.0
 1;1;Suggestions du chef;Linguine Vongole;palourdes fraîches de France, tomate cerise, persillade;;25.0
@@ -29,6 +30,5 @@ FL_ON_LUNCH;FL_ON_DINNER;LB_CATEGORY;LB_DISH_NAME;LB_DISH_SHORT_DESC;LB_DISH_LON
 1;1;Suggestions du chef;Penne pesto et jambon de Parme;;;18.0
 0;0;Suggestions du chef;Pizza apéritif;à partager ou pas (tomate, mozzarella fior di latte, oignon, persillade), servi découpé;;13.9
 0;0;Suggestions du chef;Rigatoni aux 3 fromages, Coppa;;;18.0
+1;1;Suggestions du chef;Salade végétarienne;mesclun, avocat, melon, mozzarella billes, artichaud, tomate, croûton, balsamique;;16.9
 0;1;Suggestions du chef;Scaloppina ai funghi;spaguettis (escalope de veau, crème, champignon, mozzarella gratinée);;25.0
-0;0;Plats;Rumsteak;tagliatelle, sauce gorgonzola;;22.0
-0;0;Suggestions du chef;Salade végétarienne;mesclun, avocat, melon, mozzarella billes, artichaud, tomate, croûton, balsamique;;16.9
