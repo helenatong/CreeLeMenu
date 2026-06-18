@@ -1,12 +1,17 @@
-"""Génération des cartes PDF (midi / soir) — TENUE SUR UNE SEULE PAGE.
+"""Génération des cartes PDF (midi / soir) — UNE SEULE PAGE, REMPLIE AU MAX.
 
-Principe : on mesure d'abord la hauteur totale du contenu, puis on calcule
-un facteur d'échelle pour que tout rentre sur une page A5 paysage. Polices,
-interlignes et espacements sont réduits proportionnellement. S'il y a peu de
-plats, l'échelle reste à 1.0 (on ne grossit pas au-delà du design d'origine).
+Format : A5 paysage + 3 cm de hauteur.
 
-La même fonction `_render` sert à mesurer (canvas=None) et à dessiner, ce qui
-garantit que mesure et rendu ne divergent jamais.
+Auto-ajustement : on mesure la hauteur du contenu puis on calcule un facteur
+d'échelle pour que le texte REMPLISSE la page (marges minimales en haut, bas,
+droite). L'échelle peut dépasser 1.0 (police agrandie) quand il y a peu de
+plats, ou descendre quand il y en a beaucoup — toujours sur une seule page.
+
+L'agrandissement est plafonné horizontalement pour qu'aucun nom de plat ni
+titre ne déborde, et pour que les noms ne chevauchent jamais la colonne des
+prix (gouttière réservée symétriquement, bloc nom+desc centré dedans).
+
+La même fonction `_render` sert à mesurer (canvas=None) et à dessiner.
 """
 from __future__ import annotations
 
@@ -14,20 +19,26 @@ import io
 
 import pandas as pd
 from reportlab.lib.pagesizes import A5, landscape
+from reportlab.lib.units import cm
 from reportlab.lib.utils import simpleSplit
-from reportlab.pdfbase.pdfmetrics import stringWidth
+from reportlab.pdfbase.pdfmetrics import getAscent, stringWidth
 from reportlab.pdfgen import canvas
 
 from . import config
 
-PAGE_SIZE = landscape(A5)
-MARGIN_TOP = 30
-MARGIN_BOTTOM = 24
-PRICE_RIGHT_PAD = 60  # distance du bord droit pour aligner les prix
+# Page : A5 paysage, +3 cm en hauteur.
+_W, _H = landscape(A5)
+PAGE_SIZE = (_W, _H + 3 * cm)
 
-# Échelle plancher : en deçà, le texte deviendrait illisible -> on accepte
-# de dépasser légèrement plutôt que de rendre la carte inutilisable.
-MIN_SCALE = 0.45
+# Marges volontairement faibles pour remplir la page.
+MARGIN_TOP = 16
+MARGIN_BOTTOM = 16
+PRICE_RIGHT_PAD = 24   # marge droite (alignement des prix)
+GAP_PRICE = 10         # espace mini entre le texte et le prix
+
+MIN_SCALE = 0.45       # plancher de lisibilité
+MAX_SCALE = 2.8        # plafond absolu (peu de plats)
+SAFETY = 0.985         # vise légèrement sous la hauteur dispo
 
 
 class Style:
@@ -62,18 +73,25 @@ def _format_price(value) -> str:
     return f"{f:.2f}".replace(".", ",") + "€"
 
 
+def _dish_row(row):
+    name = str(row[config.COL_NAME])
+    desc = "" if pd.isna(row[config.COL_SHORT]) else str(row[config.COL_SHORT])
+    price = _format_price(row[config.COL_PRICE])
+    return name, desc, price
+
+
 def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
     """Dessine la carte si `c` est un canvas, sinon mesure seulement.
 
-    Renvoie la hauteur totale consommée (points). Aucun saut de page :
-    tout est rendu sur une seule page.
+    Renvoie la hauteur consommée (du sommet du contenu vers le bas).
+    Aucun saut de page.
     """
     width, height = PAGE_SIZE
     center_x = width / 2
     price_x = width - PRICE_RIGHT_PAD
     max_w = width - 2 * PRICE_RIGHT_PAD
-    top = height - MARGIN_TOP
-    used = 0.0  # hauteur consommée (croît vers le bas)
+    top = height - MARGIN_TOP - getAscent(style.f_section[0], style.f_section[1])
+    used = 0.0
 
     def y() -> float:
         return top - used
@@ -96,10 +114,14 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
     def dish(name: str, desc: str, price: str) -> None:
         nonlocal used
         desc_text = f", {desc}" if desc else ""
+        price_w = stringWidth(price, *style.f_price)
         nw = stringWidth(name, *style.f_name)
         dw = stringWidth(desc_text, *style.f_desc)
 
-        if nw + dw <= max_w:
+        # Gouttière prix réservée des deux côtés -> bloc centré sans collision.
+        allowed_block = max_w - 2 * (price_w + GAP_PRICE)
+
+        if nw + dw <= allowed_block:
             if c is not None:
                 x = (width - (nw + dw)) / 2
                 c.setFont(*style.f_name)
@@ -111,7 +133,7 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
             used += style.line_h
             return
 
-        # Description trop large : nom + prix sur une ligne, desc repliée dessous.
+        # Nom (centré) + prix sur la 1re ligne ; description repliée en dessous.
         if c is not None:
             c.setFont(*style.f_name)
             c.drawCentredString(center_x, y(), name)
@@ -133,11 +155,8 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
             return
         centered(title, style.f_section, extra=style.gap_after_title)
         for _, row in df.iterrows():
-            dish(
-                name=str(row[config.COL_NAME]),
-                desc="" if pd.isna(row[config.COL_SHORT]) else str(row[config.COL_SHORT]),
-                price=_format_price(row[config.COL_PRICE]),
-            )
+            name, desc, price = _dish_row(row)
+            dish(name, desc, price)
         if separator_after:
             separator()
         used += style.gap_after_section
@@ -161,18 +180,80 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
     return used
 
 
+def _available(scale: float) -> float:
+    """Hauteur utile pour `used` à une échelle donnée (marges + ascendante)."""
+    s = Style(scale)
+    return PAGE_SIZE[1] - MARGIN_TOP - MARGIN_BOTTOM - getAscent(
+        s.f_section[0], s.f_section[1]
+    )
+
+
+def _max_scale_horizontal(*, lunch: bool, sections: dict) -> float:
+    """Plafond d'échelle pour qu'aucun texte ne déborde en largeur.
+
+    - textes centrés (titres, formule) : doivent tenir dans (largeur - marges)
+    - ligne de plat : nom + prix ne doivent pas se chevaucher (gouttière 2x)
+    """
+    width = PAGE_SIZE[0]
+    full = width - 2 * PRICE_RIGHT_PAD
+    s1 = Style(1.0)
+    cap = MAX_SCALE
+
+    centered_texts = []  # (texte, police @scale1)
+    items = list(sections.items())
+    if lunch:
+        if items:
+            centered_texts.append((f"{items[0][0]} (hors formule)", s1.f_section))
+        centered_texts.append((f"Formule du midi {config.LUNCH_FORMULA_PRICE}", s1.f_title))
+        centered_texts.append((config.LUNCH_FORMULA_SUBTITLE, s1.f_formula_sub))
+        centered_texts.append((config.LUNCH_FORMULA_FOOTNOTE, s1.f_formula_note))
+        for t, _ in items[1:]:
+            centered_texts.append((t, s1.f_section))
+    else:
+        for t, _ in items:
+            centered_texts.append((t, s1.f_section))
+
+    for text, font in centered_texts:
+        w = stringWidth(text, *font)
+        if w > 0:
+            cap = min(cap, full / w)
+
+    for df in sections.values():
+        for _, row in df.iterrows():
+            name, _desc, price = _dish_row(row)
+            name_w = stringWidth(name, *s1.f_name)
+            price_w = stringWidth(price, *s1.f_price)
+            denom = name_w + 2 * (price_w + GAP_PRICE)
+            if denom > 0:
+                cap = min(cap, full / denom)
+
+    return max(MIN_SCALE, cap)
+
+
 def _fit_style(*, lunch: bool, sections: dict) -> Style:
-    """Trouve la plus grande échelle (<= 1.0) qui fait tenir le contenu."""
-    available = PAGE_SIZE[1] - MARGIN_TOP - MARGIN_BOTTOM
+    """Cherche l'échelle qui REMPLIT la page (peut agrandir ou réduire)."""
+    hcap = _max_scale_horizontal(lunch=lunch, sections=sections)
+    upper = min(MAX_SCALE, hcap)
+
     scale = 1.0
-    for _ in range(12):
+    for _ in range(20):
         used = _render(None, Style(scale), lunch=lunch, sections=sections)
-        if used <= available:
+        if used <= 0:
             break
-        # La hauteur varie ~linéairement avec l'échelle : on vise le ratio,
-        # avec une petite marge de sécurité, puis on re-mesure (le repli de
-        # texte peut changer légèrement la hauteur).
-        scale = max(MIN_SCALE, scale * (available / used) * 0.97)
+        target = scale * (_available(scale) / used) * SAFETY
+        target = max(MIN_SCALE, min(upper, target))
+        if abs(target - scale) < 0.003:
+            scale = target
+            break
+        scale = target
+
+    # Garde-fou : garantir le maintien sur une seule page.
+    for _ in range(8):
+        used = _render(None, Style(scale), lunch=lunch, sections=sections)
+        if used <= _available(scale) or scale <= MIN_SCALE:
+            break
+        scale = max(MIN_SCALE, scale * 0.97)
+
     return Style(scale)
 
 
