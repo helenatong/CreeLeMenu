@@ -35,6 +35,7 @@ MARGIN_TOP = 16
 MARGIN_BOTTOM = 16
 PRICE_RIGHT_PAD = 24   # marge droite (alignement des prix)
 GAP_PRICE = 10         # espace mini entre le texte et le prix
+SIDE_INSET = 22        # menu midi : titres à gauche + extrémités des traits
 
 MIN_SCALE = 0.45       # plancher de lisibilité
 MAX_SCALE = 2.8        # plafond absolu (peu de plats)
@@ -103,12 +104,21 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
             c.drawCentredString(center_x, y(), text)
         used += font[1] + extra
 
-    def separator() -> None:
+    def separator(thick: bool = False) -> None:
         nonlocal used
         used += style.sep_gap
         if c is not None:
-            c.line(center_x - style.sep_half_width, y(),
-                   center_x + style.sep_half_width, y())
+            if thick:
+                c.setLineWidth(2.5)
+            if lunch:
+                # Trait long, symétrique par rapport à la feuille (atteint la
+                # colonne des libellés à gauche).
+                c.line(SIDE_INSET, y(), width - SIDE_INSET, y())
+            else:
+                c.line(center_x - style.sep_half_width, y(),
+                       center_x + style.sep_half_width, y())
+            if thick:
+                c.setLineWidth(1)  # rétablit l'épaisseur par défaut
         used += style.sep_gap
 
     def dish(name: str, desc: str, price: str) -> None:
@@ -149,7 +159,8 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
                     c.drawCentredString(center_x, y(), line)
                 used += style.line_h - 2 * style.scale
 
-    def section(title: str, df: pd.DataFrame, separator_after: bool) -> None:
+    def section(title: str, df: pd.DataFrame, separator_after: bool,
+                thick_sep: bool = False) -> None:
         nonlocal used
         if df.empty:
             return
@@ -158,6 +169,29 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
             name, desc, price = _dish_row(row)
             dish(name, desc, price)
         if separator_after:
+            separator(thick=thick_sep)
+        used += style.gap_after_section
+
+    def section_left(title: str, df: pd.DataFrame, separator_after: bool) -> None:
+        """Comme section(), mais le titre est placé à gauche, centré
+        verticalement par rapport aux plats de la rubrique (menu midi)."""
+        nonlocal used
+        if df.empty:
+            return
+        first_bl = last_bl = None
+        for _, row in df.iterrows():
+            name, desc, price = _dish_row(row)
+            bl = y()
+            if first_bl is None:
+                first_bl = bl
+            last_bl = bl
+            dish(name, desc, price)
+        if c is not None and first_bl is not None:
+            mid = (first_bl + last_bl) / 2
+            title_baseline = mid - 0.35 * style.f_section[1]  # centrage visuel
+            c.setFont(*style.f_section)
+            c.drawString(SIDE_INSET, title_baseline, title)
+        if separator_after:
             separator()
         used += style.gap_after_section
 
@@ -165,14 +199,14 @@ def _render(c, style: Style, *, lunch: bool, sections: dict) -> float:
     if lunch:
         if items:
             t0, d0 = items[0]
-            section(f"{t0} (hors formule)", d0, separator_after=True)
+            section(f"{t0} (hors formule)", d0, separator_after=True, thick_sep=True)
         centered(f"Formule du midi {config.LUNCH_FORMULA_PRICE}", style.f_title, 4 * style.scale)
         centered(config.LUNCH_FORMULA_SUBTITLE, style.f_formula_sub, 3 * style.scale)
         centered(config.LUNCH_FORMULA_FOOTNOTE, style.f_formula_note, 2 * style.scale)
         used += style.gap_after_section * 0.5
         rest = items[1:]
         for i, (t, d) in enumerate(rest):
-            section(t, d, separator_after=(i < len(rest) - 1))
+            section_left(t, d, separator_after=(i < len(rest) - 1))
     else:
         for i, (t, d) in enumerate(items):
             section(t, d, separator_after=(i < len(items) - 1))
